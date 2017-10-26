@@ -1,0 +1,45 @@
+version: '2'
+services:
+    samba:
+        image: dperson/samba
+        restart: always
+        ports:
+            - '139:139'
+            - '445:445'
+        volumes:
+            - /mnt/SDA700:/mnt/SDA700
+            - /mnt/SDA300:/mnt/SDA300
+        entrypoint:
+            - samba.sh
+            - -u 
+            - "user;user"
+            - -u 
+            - "admin;admin"
+            - -s 
+            - "public;/mnt/SDA700;yes;no;no;user"
+            - -s 
+            - "backup;/mnt/SDA300;yes;no;no;user"
+
+    postgres:
+        image: mitshel/1c-postgres:9.6
+        restart: always
+        ports:
+            - '5432:5432'
+        volumes:
+            - /home/docker/1c/1c-postgres/pgdata:/var/lib/pgsql/9.6/data
+        volumes_from:
+            - samba
+
+    server:
+        hostname: docker1c
+        image: mitshel/1c-server:8.3.10
+        restart: always
+        ports:
+           - 1540-1541:1540-1541
+           - 1560-1591:1560-1591
+        links:
+           - postgres
+        volumes:
+           - /home/docker/1c/1c-server/usr1cv8:/home/usr1cv8
+        volumes_from:
+           - samba

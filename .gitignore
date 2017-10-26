@@ -1,0 +1,4 @@
+1c-postgres/pgdata/*
+1c-server/usr1cv8/*
+*.tar
+*.rpm
